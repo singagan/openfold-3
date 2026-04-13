@@ -1110,6 +1110,11 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         ## inplace safe is used across the codebase and so should not
         ## be disabled. So if use_cueq_triangle_kernels is True, it will always
         ## supersede inplace_safe
+        if use_cueq_triangle_kernels and torch.version.hip is not None:
+            raise RuntimeError(
+                "use_cueq_triangle_kernels is not supported on AMD/ROCm hardware. "
+                "Use use_triton_triangle_kernels=True instead."
+            )
         if use_cueq_triangle_kernels:
             ## VS: The cuequivariance kernel is based on the boltz implementation
             ## of triangle multiplicative update, which fuses the linear_*_p
@@ -1396,6 +1401,11 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
             [*, N_res, N_res, C_z] output tensor
         """
         # Supersede inplace_safe conditional if cueq kernel is used
+        if use_cueq_triangle_kernels and torch.version.hip is not None:
+            raise RuntimeError(
+                "use_cueq_triangle_kernels is not supported on AMD/ROCm hardware. "
+                "Use use_triton_triangle_kernels=True instead."
+            )
         if use_cueq_triangle_kernels:
             x = _cueq_triangle_mult(
                 z=z,

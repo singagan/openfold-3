@@ -401,6 +401,23 @@ class Attention(nn.Module):
         if use_triton_triangle_kernels and q_x.shape[-2] <= 16:
             use_triton_triangle_kernels = False
 
+        if torch.version.hip is not None:
+            if use_deepspeed_evo_attention and use_cueq_triangle_kernels:
+                raise RuntimeError(
+                    "use_deepspeed_evo_attention and use_cueq_triangle_kernels are "
+                    "both not supported on AMD/ROCm hardware. "
+                    "Use only use_triton_triangle_kernels=True instead."
+                )
+            if use_deepspeed_evo_attention:
+                raise RuntimeError(
+                    "use_deepspeed_evo_attention is not supported on AMD/ROCm hardware. "
+                    "Use only use_triton_triangle_kernels=True instead."
+                )
+            if use_cueq_triangle_kernels:
+                raise RuntimeError(
+                    "use_cueq_triangle_kernels is not supported on AMD/ROCm hardware. "
+                    "Use use_triton_triangle_kernels=True instead."
+                )
         attn_options = [
             use_deepspeed_evo_attention
             or use_cueq_triangle_kernels
